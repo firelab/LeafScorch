@@ -188,6 +188,9 @@ observed_fin = read.csv("data/necrosis_data_scaled.csv") |>
   dplyr::select(groupVar, temperature, duration, survival)
 
 survivalplotsfinalfun(observed_fin, predictions.smooth)
+options(scipen = 10000)
+survivaldifffun(observed_fin, predictions.smooth)
+SPPsurvivaldifffun(observed_fin, predictions.smooth)
 
 # -------------- log-linear rate parameter models and significance ####
 source('R/optim_functions.R')
