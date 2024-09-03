@@ -4,7 +4,8 @@ library(car)
 library(caret)
 
 processfun = function(species, season){
-  df = read.csv(paste0("data/necrosis_data_", season, ".csv"))
+  df = read.csv(paste0("data/necrosis_data_", season, ".csv")) %>% 
+    filter(spp == species)
   names(df)[1] = "uniqueID"
   
   df$spc1 = df$EC1*(1 + 0.0191*(df$temp1 - 25))
