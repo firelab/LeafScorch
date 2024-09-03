@@ -369,137 +369,33 @@ survivalplotsfinalfun = function(dat, jack){
     gplots[[n]] = g1
   }
   ggsave(paste0("outputs/survivalmodels_fit_smooth_final.jpg"), gplots[[1]]|gplots[[2]]|gplots[[3]]|gplots[[4]]|gplots[[5]], device = "jpeg", height = 4, width = 10)
-}
-survivaldifffun = function(dat, jack){
-  dat$groupVar = as.factor(dat$groupVar)
-  levels(dat$groupVar) = c("PIPO_allothers", "PIPO_allothers", "PIPO_spring_n", "PIPO_allothers",
-                           "PSME_allautumn", "PSME_allautumn", "PSME_spring_n", "PSME_spring_o")
-  dat = dat |> 
-    left_join(results_fin)
   
-  dfs = list(dat, jack)
-  for(i in 1:2){
-    df.temp = dfs[[i]]
-    df.temp$temperature = as.factor(df.temp$temperature)
-    df.temp$timestamp = as.POSIXct(seconds.to.hms(df.temp$duration), format = "%H:%M:%S")
-    df.temp$season = factor(df.temp$season, levels = c("spring", "autumn", "spring and autumn"))
-    df.temp$age = factor(df.temp$age, levels = c("n", "o", "n and o"))
-    df.temp$plotVar = factor(paste0(df.temp$season, "_", df.temp$age), levels = c("spring_n",
-                                                                                  "spring_o",
-                                                                                  "autumn_n and o",
-                                                                                  "spring and autumn_n and o"))
-    dfs[[i]] = df.temp
-  }
-  dat = dfs[[1]]
-  jack = dfs[[2]]
-  
-  results.grid = data.frame()
-  for(s in c("PSME", "PIPO")){
-    jack.temp = jack %>% 
-      filter(species == s)
-    dat.temp = dat %>% 
-      filter(species == s)
-    
-    for(t in seq(45, 65, by = 5)){
-      jack.temp1 = jack.temp %>% 
-        filter(temperature == t)
-      dat.temp2 = dat.temp %>% 
-        filter(temperature == t)
-      
-      dat.agg = aggregate(data = dat.temp2, duration~ groupVar, FUN = max)
-      
-      durations = unique(dat.temp2$duration)
-      durations = sort(durations[durations <= min(dat.agg$duration)])
-      
-      jack.temp1 = jack.temp1 %>% 
-        filter(duration %in% durations)
-      
-      for(d in unique(jack.temp1$duration)){
-        jack.temp2 = jack.temp1 %>% 
-          filter(duration == d)
-        
-        jack.temp2$groupVar = as.factor(jack.temp2$groupVar)
-        mod = aov(data = jack.temp2, predicted ~ groupVar)
-        mod.t = TukeyHSD(mod)
-        
-        results.temp = data.frame(species = s,
-                                  comparison = row.names(mod.t$groupVar),
-                                  temperature = t,
-                                  duration = d,
-                                  diff = mod.t$groupVar[,1],
-                                  p = mod.t$groupVar[,4])
-        results.temp$compVar1 = unlist(map(strsplit(results.temp$comparison, "-"), 1))
-        results.temp$compVar2 = unlist(map(strsplit(results.temp$comparison, "-"), 2))
-        results.temp = results.temp %>% 
-          dplyr::select(species, compVar1, compVar2, temperature:p)
-        results.grid = rbind(results.grid, results.temp)
-      }
-    }
-  }
-  write.csv(results.grid, paste0("outputs/survival_sign.test_final.csv"), row.names = F)
-}
-SPPsurvivaldifffun = function(dat, jack){
-  dat$groupVar = as.factor(dat$groupVar)
-  levels(dat$groupVar) = c("PIPO_allothers", "PIPO_allothers", "PIPO_spring_n", "PIPO_allothers",
-                           "PSME_allautumn", "PSME_allautumn", "PSME_spring_n", "PSME_spring_o")
-  dat = dat |> 
-    left_join(results_fin)
-  
-  dfs = list(dat, jack)
-  for(i in 1:2){
-    df.temp = dfs[[i]]
-    df.temp$temperature = as.factor(df.temp$temperature)
-    df.temp$timestamp = as.POSIXct(seconds.to.hms(df.temp$duration), format = "%H:%M:%S")
-    df.temp$season = factor(df.temp$season, levels = c("spring", "autumn", "spring and autumn"))
-    df.temp$age = factor(df.temp$age, levels = c("n", "o", "n and o"))
-    df.temp$plotVar = factor(paste0(df.temp$season, "_", df.temp$age), levels = c("spring_n",
-                                                                                  "spring_o",
-                                                                                  "autumn_n and o",
-                                                                                  "spring and autumn_n and o"))
-    dfs[[i]] = df.temp
-  }
-  dat = dfs[[1]]
-  jack = dfs[[2]]
-  
-  results.grid = data.frame()
-    
-  for(t in seq(45, 65, by = 5)){
-    jack.temp1 = jack %>% 
-      filter(temperature == t)
-    dat.temp2 = dat %>% 
-      filter(temperature == t)
-    
-    dat.agg = aggregate(data = dat.temp2, duration~ groupVar, FUN = max)
-    
-    durations = unique(dat.temp2$duration)
-    durations = sort(durations[durations <= min(dat.agg$duration)])
-    
-    jack.temp1 = jack.temp1 %>% 
-      filter(duration %in% durations)
-    
-    for(d in unique(jack.temp1$duration)){
-      jack.temp2 = jack.temp1 %>% 
-        filter(duration == d)
-      
-      jack.temp2$groupVar = as.factor(jack.temp2$groupVar)
-      mod = aov(data = jack.temp2, predicted ~ groupVar)
-      mod.t = TukeyHSD(mod)
-      
-      results.temp = data.frame(comparison = row.names(mod.t$groupVar),
-                                temperature = t,
-                                duration = d,
-                                diff = mod.t$groupVar[,1],
-                                p = mod.t$groupVar[,4])
-      results.temp$compVar1 = unlist(map(strsplit(results.temp$comparison, "-"), 1))
-      results.temp$compVar2 = unlist(map(strsplit(results.temp$comparison, "-"), 2))
-      results.temp$species1 = unlist(map(strsplit(results.temp$compVar1, "_"), 1))
-      results.temp$species2 = unlist(map(strsplit(results.temp$compVar2, "_"), 1))
-      results.temp = results.temp %>% 
-        dplyr::select(species1,, species2, compVar1, compVar2, temperature:p)
-      results.grid = rbind(results.grid, results.temp)
-    }
-  }
-  write.csv(results.grid, paste0("outputs/survival_SPPsign.test_final.csv"), row.names = F)
+  # g1 =
+    ggplot() +
+    geom_ribbon(data = jack, aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar), alpha = 0.2) +
+    geom_line(data = jack, aes(x = timestamp, y = predicted, col = plotVar)) +
+    geom_point(data = dat, aes(x = timestamp, y = survival, col = plotVar, shape = plotVar)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("Spring - new",
+                                             "Spring - 1yo",
+                                             "All autumn",
+                                             "Spring 1yo and all autumn"),
+                       values = c(1, 19, 3, 3)) +
+    scale_color_manual(name = "", labels = c("Spring - new",
+                                             "Spring - 1yo",
+                                             "All autumn",
+                                             "Spring 1yo and all autumn"),
+                       values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
+    scale_fill_manual(name = "", labels = c("Spring - new",
+                                            "Spring - 1yo",
+                                            "All autumn",
+                                            "Spring 1yo and all autumn"),
+                      values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
+    facet_wrap(facets = c("species", "season", "age"), nrow = 2) +
+    theme_bw()
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final.jpg"), g1, device = "jpeg", height = 4, width = 10)
 }
 
 loglinearfun = function(dat, errors, label){
