@@ -187,7 +187,7 @@ predictions.smooth = readRDS(paste0("outputs/predictions.smoothed_", label, "_al
 observed_fin = read.csv("data/necrosis_data_scaled.csv") |>
   dplyr::select(groupVar, temperature, duration, survival)
 
-survivalplotsfinalfun(observed_fin, predictions.smooth)
+survivalplotsfinalfun(dat = observed_fin, jack = predictions.smooth)
 
 # -------------- log-linear rate parameter models and significance ####
 source('R/optim_functions.R')

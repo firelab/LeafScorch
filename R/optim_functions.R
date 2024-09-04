@@ -370,11 +370,13 @@ survivalplotsfinalfun = function(dat, jack){
   }
   ggsave(paste0("outputs/survivalmodels_fit_smooth_final.jpg"), gplots[[1]]|gplots[[2]]|gplots[[3]]|gplots[[4]]|gplots[[5]], device = "jpeg", height = 4, width = 10)
   
-  # g1 =
-    ggplot() +
-    geom_ribbon(data = jack, aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar), alpha = 0.2) +
-    geom_line(data = jack, aes(x = timestamp, y = predicted, col = plotVar)) +
-    geom_point(data = dat, aes(x = timestamp, y = survival, col = plotVar, shape = plotVar)) +
+  dat$plotVar2 = paste0(dat$plotVar, "_", dat$temperature)
+  jack$plotVar2 = paste0(jack$plotVar, "_", jack$temperature)
+  g1 =
+  ggplot() +
+    geom_ribbon(data = jack |> filter(temperature == 45 | temperature == 50 | temperature == 55), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(temperature == 45 | temperature == 50 | temperature == 55), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(temperature == 45 | temperature == 50 | temperature == 55), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
     scale_x_datetime(date_labels = "%H:%M:%S") +
     xlab("") +
     coord_cartesian(ylim = c(0, 100)) +
@@ -393,9 +395,154 @@ survivalplotsfinalfun = function(dat, jack){
                                             "All autumn",
                                             "Spring 1yo and all autumn"),
                       values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
-    facet_wrap(facets = c("species", "season", "age"), nrow = 2) +
-    theme_bw()
-  ggsave(paste0("outputs/survivalmodels_fit_smooth_final.jpg"), g1, device = "jpeg", height = 4, width = 10)
+    theme_bw() +
+    facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_lowtemps.jpg"), g1, device = "jpeg", height = 4, width = 5)
+  
+  g1 =
+    ggplot() +
+    geom_ribbon(data = jack |> filter(temperature == 60 | temperature == 65), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(temperature == 60 | temperature == 65), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(temperature == 60 | temperature == 65), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("Spring - new",
+                                             "Spring - 1yo",
+                                             "All autumn",
+                                             "Spring 1yo and all autumn"),
+                       values = c(1, 19, 3, 3)) +
+    scale_color_manual(name = "", labels = c("Spring - new",
+                                             "Spring - 1yo",
+                                             "All autumn",
+                                             "Spring 1yo and all autumn"),
+                       values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
+    scale_fill_manual(name = "", labels = c("Spring - new",
+                                            "Spring - 1yo",
+                                            "All autumn",
+                                            "Spring 1yo and all autumn"),
+                      values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
+    theme_bw() +
+    facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_hightemps.jpg"), g1, device = "jpeg", height = 4, width = 7)
+  
+  g1 =
+    ggplot() +
+    geom_ribbon(data = jack |> filter(plotVar == "spring_n" & species == "PIPO"), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(plotVar == "spring_n" & species == "PIPO"), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(plotVar == "spring_n" & species == "PIPO"), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("Spring - new"),
+                       values = c(1)) +
+    scale_color_manual(name = "", labels = c("Spring - new"),
+                       values = c("#78B6D2")) +
+    scale_fill_manual(name = "", labels = c("Spring - new"),
+                      values = c("#78B6D2")) +
+    theme_bw() +
+    facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_spring.n.PIPO.jpg"), g1, device = "jpeg", height = 2.25, width = 7)
+  
+  g1 =
+    ggplot() +
+    geom_ribbon(data = jack |> filter(plotVar == "spring_n" & species == "PSME"), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(plotVar == "spring_n" & species == "PSME"), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(plotVar == "spring_n" & species == "PSME"), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("Spring - new"),
+                       values = c(1)) +
+    scale_color_manual(name = "", labels = c("Spring - new"),
+                       values = c("#78B6D2")) +
+    scale_fill_manual(name = "", labels = c("Spring - new"),
+                      values = c("#78B6D2")) +
+    theme_bw() +
+    facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_spring.n.PSME.jpg"), g1, device = "jpeg", height = 2.25, width = 7)
+  
+  g1 =
+    ggplot() +
+    geom_ribbon(data = jack |> filter(plotVar == "spring_o"), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(plotVar == "spring_o"), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(plotVar == "spring_o"), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("Spring - 1yo"),
+                       values = c(19)) +
+    scale_color_manual(name = "", labels = c("Spring - 1yo"),
+                       values = c("#1E79B3")) +
+    scale_fill_manual(name = "", labels = c("Spring - 1yo"),
+                      values = c("#1E79B3")) +
+    theme_bw() +
+    # facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_spring.o.jpg"), g1, device = "jpeg", height = 2.25, width = 7)
+  
+  g1 =
+    ggplot() +
+    geom_ribbon(data = jack |> filter(plotVar == "autumn_n and o"), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(plotVar == "autumn_n and o"), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(plotVar == "autumn_n and o"), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("All autumn"),
+                       values = c(3)) +
+    scale_color_manual(name = "", labels = c("All autumn"),
+                       values = c("#FF7F00")) +
+    scale_fill_manual(name = "", labels = c("All autumn"),
+                      values = c("#FF7F00")) +
+    theme_bw() +
+    # facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_autumn.n.and.o.jpg"), g1, device = "jpeg", height = 2.25, width = 7)
+  
+  g1 =
+    ggplot() +
+    geom_ribbon(data = jack |> filter(plotVar == "spring and autumn_n and o"), aes(x = timestamp, ymin = predicted.min, ymax = predicted.max, fill = plotVar, group = plotVar2), alpha = 0.2) +
+    geom_line(data = jack |> filter(plotVar == "spring and autumn_n and o"), aes(x = timestamp, y = predicted, col = plotVar, group = plotVar2)) +
+    geom_point(data = dat |> filter(plotVar == "spring and autumn_n and o"), aes(x = timestamp, y = survival, col = plotVar, shape = plotVar, group = plotVar2)) +
+    scale_x_datetime(date_labels = "%H:%M:%S") +
+    xlab("") +
+    coord_cartesian(ylim = c(0, 100)) +
+    scale_shape_manual(name = "", labels = c("Spring 1yo and all autumn"),
+                       values = c(3)) +
+    scale_color_manual(name = "", labels = c("Spring 1yo and all autumn"),
+                       values = c("gray20")) +
+    scale_fill_manual(name = "", labels = c("Spring 1yo and all autumn"),
+                      values = c("gray20")) +
+    theme_bw() +
+    # facet_wrap(facets = "species", nrow = 2) +
+    ylab("Survival (%)") +
+    theme(legend.position = "none",
+          strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave(paste0("outputs/survivalmodels_fit_smooth_final_all.others.jpg"), g1, device = "jpeg", height = 2.25, width = 7)
 }
 
 loglinearfun = function(dat, errors, label){
