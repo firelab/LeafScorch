@@ -1157,15 +1157,15 @@ ld50plotsfun = function(LD50){
                                                  "spring and autumn_n and o"))
   g1 =
     ggplot() +
-    geom_ribbon(data = LD50, aes(x = duration, ymin = LD50 - accuracy, ymax = LD50 + accuracy, fill = plotVar), alpha = 0.5) +
+    # geom_ribbon(data = LD50, aes(x = duration, ymin = LD50 - accuracy, ymax = LD50 + accuracy, fill = plotVar), alpha = 0.5) +
     geom_line(data = LD50, aes(x = duration, y = LD50, col = plotVar)) +
     ylab("LD50 (C)") +
     xlab("Duration of heating (s)") +
-    scale_fill_manual(name = "", labels = c("Spring - new",
-                                             "Spring - 1yo",
-                                             "All autumn",
-                                             "Spring 1yo and all autumn"),
-                       values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
+    # scale_fill_manual(name = "", labels = c("Spring - new",
+                       #                       "Spring - 1yo",
+                       #                       "All autumn",
+                       #                       "Spring 1yo and all autumn"),
+                       # values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
     scale_color_manual(name = "", labels = c("Spring - new",
                                              "Spring - 1yo",
                                              "All autumn",
@@ -1178,4 +1178,30 @@ ld50plotsfun = function(LD50){
     theme(strip.background = element_blank(),
           strip.text.x = element_blank())
   ggsave("outputs/LD50_final.jpg", g1, device = "jpeg", height = 5, width = 5)
+  
+  LD50$species = factor(LD50$species, levels = c("PIPO", "PSME"))
+  g1 =
+    ggplot() +
+    # geom_ribbon(data = LD50, aes(x = duration, ymin = LD50 - accuracy, ymax = LD50 + accuracy, fill = groupVar), alpha = 0.5) +
+    geom_line(data = LD50, aes(x = duration, y = LD50, col = plotVar, lty = species), linewidth = 0.7) +
+    ylab("LD50 (C)") +
+    xlab("Duration of heating (s)") +
+    scale_linetype_manual(name = "", labels = c("PIPO", "PSME"),
+                   values = c(1, 2)) +
+    # scale_fill_manual(name = "", labels = c("Spring - new",
+                      #                       "Spring 1yo and all autumn",
+                      #                       "Spring - new",
+                      #                       "Spring - 1yo",
+                      #                       "All autumn"),
+                      # values = c("#78B6D2", "gray20", "#78B6D2", "#1E79B3", "#FF7F00")) +
+    scale_color_manual(name = "", labels = c("Spring - new",
+                                             "Spring - 1yo",
+                                             "All autumn",
+                                             "Spring 1yo and all autumn"),
+                       values = c("#78B6D2", "#1E79B3", "#FF7F00", "gray20")) +
+    scale_x_continuous(limits = c(0, 90), breaks = c(0, 30, 60, 90)) +
+    theme_bw() +
+    theme(strip.background = element_blank(),
+          strip.text.x = element_blank())
+  ggsave("outputs/LD50_final_nofacet.jpg", g1, device = "jpeg", height = 2.5, width = 5)
 }

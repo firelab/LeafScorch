@@ -225,5 +225,5 @@ ld50fun(parameters, observed_fin)
 
 # -------------- LD50 plots ####
 source('R/optim_functions.R')
-LD50 = read.csv("outputs/LD50.csv")
+LD50 = read.csv("outputs/LD50_final.csv")
 ld50plotsfun(LD50)
